@@ -129,7 +129,7 @@ $( "#suggest" ).autocomplete({
 		if ( term in cache ) {
 			response( cache[ term ] );
 		} else {
-			$.getJSON("/ajax_rulesuggest.php?dev=<?=$device['device_id'];?>", request, function( data, status, xhr ) {
+			$.getJSON("/ajax_rulesuggest.php?dev=<?php echo $device['device_id']; ?>", request, function( data, status, xhr ) {
 				cache[ term ] = data;
 				response( data );
 			});
