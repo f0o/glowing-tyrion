@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2014  <f0o@devilcode.org>
+/* Copyright (C) 2014 Daniel Preussker <f0o@devilcode.org>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,11 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 /**
- * Alerting CronJob
- * @author f0o <f0o@devilcode.org>
+ * Alerts Tracking
+ * @author Daniel Preussker <f0o@devilcode.org>
  * @copyright 2014 f0o, LibreNMS
  * @license GPL
- * @package LibreNMS
+ * @package LibreNMS/Alerts
  */
 
 /**
@@ -59,7 +59,7 @@ function runrules($device) {
 	global $debug;
 	foreach( dbFetchRows("SELECT * FROM alert_rules WHERE alert_rules.disabled = 0 && ( alert_rules.device_id = -1 || alert_rules.device_id = ? ) ORDER BY device_id,id",array($device)) as $rule ) {
 		echo " #".$rule['id'].":";
-		$chk = dbFetchRow("SELECT state,message FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'], $device));
+		$chk = dbFetchRow("SELECT state FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'], $device));
 		if( $chk['state'] === "2" ) {
 			echo " SKIP  ";
 		}
@@ -69,7 +69,8 @@ function runrules($device) {
 			if( $chk['state'] === "1" ) {
 				echo " NOCHG ";
 			} else {
-				if( dbInsert(array('state' => 1, 'device_id' => $device, 'rule_id' => $rule['id'], 'message' => json_encode(getContacts($qry))),'alerts') ) {
+				$extra = gzcompress(json_encode(array('contacts' => getContacts($qry), 'rule'=>$qry)),9);
+				if( dbInsert(array('state' => 1, 'device_id' => $device, 'rule_id' => $rule['id'], 'message' => $extra),'alerts') ) {
 					echo " ALERT ";
 				}
 			}
@@ -77,8 +78,8 @@ function runrules($device) {
 			if( $chk['state'] === "0" ) {
 				echo " NOCHG ";
 			} else {
-				if( dbInsert(array('state' => 0, 'device_id' => $device, 'rule_id' => $rule['id'], 'message' => $chk['message']),'alerts') ){
-					echo " OK ";
+				if( dbInsert(array('state' => 0, 'device_id' => $device, 'rule_id' => $rule['id']),'alerts') ){
+					echo " OK    ";
 				}
 			}
 		}
