@@ -12,6 +12,9 @@ Table of Content:
  - [Syntax](#templates-syntax)
  - [Examples](#templates-examples)
 - [Transports](#transports)
+ - [E-Mail](#transports-email)
+ - [API](#transports-api)
+ - [Nagios-Compatible](#transports-nagios)
 
 # <a name="about">About</a>
 
@@ -92,4 +95,43 @@ Alert sent to: {foreach %contacts}%value <%key> {/foreach}
 
 # <a name="transports">Transports</a>
 
-Transports are located within `$config['install_dir']/includes/alerts/transports.*.php` and defined as well as configured via `$config['alert']['transports']['Example'] = 'Some Options'`.
+Transports are located within `$config['install_dir']/includes/alerts/transports.*.php` and defined as well as configured via `$config['alert']['transports']['Example'] = 'Some Options'`.  
+
+Contacts will be gathered automatically and passed to the configured transports.  
+The contacts will always include the `SysContact` defined in the Device's SNMP configuration and also every LibreNMS-User that has at least `read`-permissions on the entity that is to be alerted.  
+At the moment LibreNMS only supports Port or Device permissions.  
+To include users that have `Global-Read` or `Administrator` permissions it is required to add these additions to the `config.php` respectively:
+```php
+$config['alert']['globals'] = true; //Include Global-Read into alert-contacts
+$config['alert']['admins']  = true; //Include Adminstrators into alert-contacts
+```
+
+## <a name="transports-email">E-Mail</a>
+
+E-Mail transport is enabled with adding the following to your `config.php`:  
+```php
+$config['alert']['transports']['mail'] = true;
+```
+
+## <a name="transports-api">API</a>
+
+API transports definitions are a bit more complex than the E-Mail configuration.  
+The basis for configuration is `$config['alert']['transports']['api'][METHOD]` where `METHOD` can be `get`,`post` or `put`.  
+This basis has to contain an array with URLs of each API to call.  
+The URL can have the same placeholders as defined in the [Template-Syntax](#templates-syntax).  
+If the `METHOD` is `get`, all placeholders will be URL-Encoded.  
+The API transport uses cURL to call the APIs, therefore you might need to install `php5-curl` or similar in order to make it work.  
+__Note__: it is higly recommended to define own [Templates](#templates) when you want to use the API transport. The default template might exceed URL-length for GET requests and therefore cause all sorts of errors.  
+
+Example:
+```php
+$config['alert']['transports']['api']['get'][] = "https://api.thirdparti.es/issue?apikey=abcdefg&subject=%title";
+```
+
+## <a name="transports-nagios">Nagios Compatible</a>
+
+The nagios transport will feed a FIFO at the defined location with the same format that nagios would.  
+This allows you to use other Alerting-Systems to work with LibreNMS, for example [Flapjack](http://flapjack.io).
+```php
+$config['alert']['transports']['nagios'] = "/path/to/my.fifo"; //Flapjack expects it to be at '/var/cache/nagios3/event_stream.fifo'
+```
