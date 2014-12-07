@@ -7,8 +7,10 @@ Table of Content:
 - [About](#about)
 - [Rules](#rules)
  - [Syntax](#rules-syntax)
+ - [Examples](#rules-examples)
 - [Templates](#templates)
  - [Syntax](#templates-syntax)
+ - [Examples](#templates-examples)
 - [Transports](#transports)
 
 # <a name="about">About</a>
@@ -38,6 +40,14 @@ __Conditions__ can be any of:
 __Values__ can be Entities or any single-quoted data.  
 __Glues__ can be either `&&` for `AND` or `||` for `OR`.
 
+# <a name="rules-examples">Examples</a>
+
+Alert when:
+- Device goes down: `%devices.status != '1'`
+- Any port changes: `%ports.ifOperStatus != 'up'`
+- Root-directory gets too full: `%storage.storage_descr = '/' && %storage.storage_perc >= '75'`
+- Any storage gets fuller than the 'warning': `%storage.storage_perc >= %storage_perc_warn`
+
 # <a name="templates">Templates</a>
 
 Templates can be assigned to a single or a group of rules.  
@@ -64,6 +74,21 @@ Placeholders:
 - Rule: `%rule`
 - Timestamp: `%timestamp`
 - Contacts, must be iterated in a foreach, `%key` holds email and `%value` holds name: `%contacts`
+
+## <a name="templates-examples">Examples</a>
+
+Default Template:  
+```text
+%title\r\n
+Severity: %severity\r\n
+{if %state == 0}Time elapsed: %elapsed\r\n{/if}
+Timestamp: %timestamp\r\n
+Unique-ID: %uid\r\n
+Rule: %rule\r\n
+{if %faults}Faults:\r\n
+{foreach %faults}  #%key: %value\r\n{/foreach}{/if}
+Alert sent to: {foreach %contacts}%value <%key> {/foreach}
+```
 
 # <a name="transports">Transports</a>
 
