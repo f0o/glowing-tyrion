@@ -40,7 +40,7 @@ __Conditions__ can be any of:
 __Values__ can be Entities or any single-quoted data.  
 __Glues__ can be either `&&` for `AND` or `||` for `OR`.
 
-# <a name="rules-examples">Examples</a>
+## <a name="rules-examples">Examples</a>
 
 Alert when:
 - Device goes down: `%devices.status != '1'`
