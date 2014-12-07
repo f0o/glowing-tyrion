@@ -109,7 +109,7 @@ foreach (dbFetch($query) as $device)
 {
   $device = dbFetchRow("SELECT * FROM `devices` WHERE `device_id` = '".$device['device_id']."'");
   poll_device($device, $options);
-  runrules($device['device_id']);
+  RunRules($device['device_id']);
   echo "\r\n";
   $polled_devices++;
 }

@@ -18,7 +18,8 @@
  * @author Daniel Preussker <f0o@devilcode.org>
  * @copyright 2014 f0o, LibreNMS
  * @license GPL
- * @package LibreNMS/Alerts
+ * @package LibreNMS
+ * @subpackage Alerts
  */
 
 /**
@@ -26,7 +27,7 @@
  * @param string $rule Rule to generate SQL for
  * @return string
  */
-function gensql($rule) {
+function GenSQL($rule) {
 	$tmp = explode(" ",$rule);
 	$tables = array();
 	foreach( $tmp as $opt ) {
@@ -55,7 +56,7 @@ function gensql($rule) {
  * @param int $device Device-ID
  * @return void
  */
-function runrules($device) {
+function RunRules($device) {
 	global $debug;
 	foreach( dbFetchRows("SELECT * FROM alert_rules WHERE alert_rules.disabled = 0 && ( alert_rules.device_id = -1 || alert_rules.device_id = ? ) ORDER BY device_id,id",array($device)) as $rule ) {
 		echo " #".$rule['id'].":";
@@ -63,14 +64,14 @@ function runrules($device) {
 		if( $chk['state'] === "2" ) {
 			echo " SKIP  ";
 		}
-		$sql = gensql($rule['rule']);
+		$sql = GenSQL($rule['rule']);
 		$qry = dbFetchRows($sql,array($device));
 		if( sizeof($qry) > 0 ) {
 			if( $chk['state'] === "1" ) {
 				echo " NOCHG ";
 			} else {
-				$extra = gzcompress(json_encode(array('contacts' => getContacts($qry), 'rule'=>$qry)),9);
-				if( dbInsert(array('state' => 1, 'device_id' => $device, 'rule_id' => $rule['id'], 'message' => $extra),'alerts') ) {
+				$extra = gzcompress(json_encode(array('contacts' => GetContacts($qry), 'rule'=>$qry)),9);
+				if( dbInsert(array('state' => 1, 'device_id' => $device, 'rule_id' => $rule['id'], 'details' => $extra),'alerts') ) {
 					echo " ALERT ";
 				}
 			}
@@ -91,7 +92,7 @@ function runrules($device) {
  * @param array $results Rule-Result
  * @return array
  */
-function getContacts($results) {
+function GetContacts($results) {
 	global $config;
 	if( sizeof($results) == 0 ) {
 		return array();
