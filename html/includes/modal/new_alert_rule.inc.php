@@ -1,5 +1,4 @@
 
-
  <div class="modal fade bs-example-modal-sm" id="create-alert" tabindex="-1" role="dialog" aria-labelledby="Create" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -15,6 +14,7 @@
                 </div>
             </div>
             <input type="hidden" name="device_id" id="device_id" value="">
+            <input type="hidden" name="alert_id" id="alert_id" value="">
             <input type="hidden" name="type" id="type" value="create-alert-item">
         <div class="form-group">
                 <label for='entity' class='col-sm-3 control-label'>Entity: </label>
@@ -74,13 +74,33 @@
                 </div>
         </div>
 </div>
+
 <script>
 
 $('#create-alert').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var device_id = button.data('device_id');
+    var alert_id = button.data('alert_id');
     var modal = $(this)
     $('#device_id').val(device_id);
+    $('#alert_id').val(alert_id);
+    $('#response').tagmanager({
+           strategy: 'array',
+           tagFieldName: 'rules[]'
+    });
+    $.ajax({
+        type: "POST",
+        url: "/ajax_form.php",
+        data: { type: "parse-alert-rule", alert_id: alert_id },
+        dataType: "json",
+        success: function(output) {
+            var arr = [];
+            for (elem in output) {
+                arr.push(output[elem]);
+            }
+            $('#response').data('tagmanager').populate(arr);
+        }
+    });
 });
 </script>
 
@@ -89,8 +109,8 @@ var cache = {};
 $('#suggest').typeahead([
     {
       name: 'suggestion',
-      remote : '/ajax_rulesuggest.php?device_id=<?php echo $device['device_id'];?>&term=%QUERY',
-      template: '<p>{{name}} - {{current}}</p>',
+      remote : '/ajax_rulesuggest.php?dev=<?php echo $device['device_id'];?>"&term=%QUERY',
+      template: '{{name}}',
       valueKey:"name",
       engine: Hogan
     }
