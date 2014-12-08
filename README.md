@@ -15,6 +15,7 @@ Table of Content:
  - [E-Mail](#transports-email)
  - [API](#transports-api)
  - [Nagios-Compatible](#transports-nagios)
+ - [IRC](#transports-irc)
 
 # <a name="about">About</a>
 
@@ -134,4 +135,12 @@ The nagios transport will feed a FIFO at the defined location with the same form
 This allows you to use other Alerting-Systems to work with LibreNMS, for example [Flapjack](http://flapjack.io).
 ```php
 $config['alert']['transports']['nagios'] = "/path/to/my.fifo"; //Flapjack expects it to be at '/var/cache/nagios3/event_stream.fifo'
+```
+
+## <a name="transports-irc">IRC</a>
+
+The IRC transports only works together with the LibreNMS IRC-Bot.  
+Configuration of the LibreNMS IRC-Bot is described [here](https://github.com/librenms/librenms/blob/master/doc/IRC-Bot.md).  
+```php
+$config['alert']['transports']['irc'] = true;
 ```
