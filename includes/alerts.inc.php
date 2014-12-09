@@ -48,7 +48,7 @@ function GenSQL($rule) {
 		}
 		$i++;
 	}
-	$sql = "SELECT * FROM ".implode(",",$tables)." WHERE (".$join."".$tables[0].".device_id = ?) && (".str_replace(array("!~","~"),array("NOT LIKE","LIKE"),$rule).")";
+	$sql = "SELECT * FROM ".implode(",",$tables)." WHERE (".$join."".$tables[0].".device_id = ?) && (".str_replace(array("*","!~","~"),array("%","NOT LIKE","LIKE"),$rule).")";
 	return $sql;
 }
 
