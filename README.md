@@ -70,6 +70,8 @@ Controls:
 - foreach-loop:  
 `{foreach %placeholder}Key: %key<br/>Value: %value{/foreach}`
 
+__Limitations__: Currently it is not possible to have nested `if` controls, so `if` inside an `if`. It is also not possible to have an `if` inside a `foreach` control. These limitations are going to be resolved in (near?) future.
+
 Placeholders:
 - Hostname of the Device: `%hostname`
 - Title for the Alert: `%title`
