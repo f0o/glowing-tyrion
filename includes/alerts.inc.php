@@ -60,6 +60,10 @@ function GenSQL($rule) {
  */
 function RunRules($device) {
 	global $debug;
+	$chk = dbFetchRow("SELECT id FROM alert_schedule WHERE alert_schedule.device_id = ? AND NOW() BETWEEN alert_schedule.start AND alert_schedule.end", array($device));
+	if( $chk['id'] > 0 ) {
+		return false;
+	}
 	foreach( dbFetchRows("SELECT * FROM alert_rules WHERE alert_rules.disabled = 0 && ( alert_rules.device_id = -1 || alert_rules.device_id = ? ) ORDER BY device_id,id",array($device)) as $rule ) {
 		echo " #".$rule['id'].":";
 		$chk = dbFetchRow("SELECT state FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'], $device));
