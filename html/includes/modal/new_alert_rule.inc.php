@@ -33,6 +33,8 @@
                         <select id='condition' name='condition' placeholder='Condition' class='form-control'>
                                 <option value='='>Equals</option>
                                 <option value='!='>Not Equals</option>
+                                <option value='~'>Matches</option>
+                                <option value='!~'>Not Matches</option>
                                 <option value='>'>Larger than</option>
                                 <option value='>='>Larger than or Equals</option>
                                 <option value='<'>Smaller than</option>
@@ -109,7 +111,7 @@ var cache = {};
 $('#suggest').typeahead([
     {
       name: 'suggestion',
-      remote : '/ajax_rulesuggest.php?dev=<?php echo $device['device_id'];?>"&term=%QUERY',
+      remote : '/ajax_rulesuggest.php?device_id=<?php echo $device['device_id'];?>&term=%QUERY',
       template: '{{name}}',
       valueKey:"name",
       engine: Hogan

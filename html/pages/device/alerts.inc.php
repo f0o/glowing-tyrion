@@ -58,7 +58,7 @@ $start = ($page_number - 1) * $results;
 $full_query = $full_query . $query . " LIMIT $start,$results";
 
 foreach( dbFetchRows($full_query, $param) as $rule ) {
-	$sub = dbFetchRows("SELECT * FROM alerts WHERE rule_id = ? ORDER BY id DESC LIMIT 1", array($rule['id']));
+	$sub = dbFetchRows("SELECT * FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'],$device['device_id']));
 	$ico = "ok";
 	$col = "green";
 	$extra = "";

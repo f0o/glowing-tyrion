@@ -106,7 +106,7 @@ if( isset($_GET['term'],$_GET['device_id']) ) {
 				foreach( $qry as $row ) {
 					$val[] = $row[$chk];
 				}
-				$ret[$lev] = array('name'=>$fld['name'],'current'=>implode(", ",$val));
+				$ret[$lev] = array('name'=>$fld['name'],'current'=>$val);
 			}
 			$obj = $ret;
 		}
