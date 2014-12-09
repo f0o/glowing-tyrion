@@ -120,7 +120,7 @@ function FormatAlertTpl($tpl,$obj) {
 /**
  * Describe Alert
  * @param array $alert Alert-Result from DB
- * @return string
+ * @return array
  */
 function DescribeAlert($alert) {
 	$tmp = array();
