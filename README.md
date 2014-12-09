@@ -36,6 +36,8 @@ __Entities__ are provided as `%`-Noted pair of Table and Field. For Example: `%p
 __Conditions__ can be any of:
 - Equals `=`
 - Not Equals `!=`
+- Matches `~`
+- Not Matches `!~`
 - Greater `>`
 - Greater or Equal `>=`
 - Smaller `<`
@@ -43,6 +45,8 @@ __Conditions__ can be any of:
 
 __Values__ can be Entities or any single-quoted data.  
 __Glues__ can be either `&&` for `AND` or `||` for `OR`.
+
+__Note__: The difference between `Equals` and `Matches` (and it's negation) is that `Equals` does a strict comparison and `Matches` allows the usage of the placeholder `%`. The placeholder `%` is comparable with `.*` in RegExp.
 
 ## <a name="rules-examples">Examples</a>
 
@@ -61,7 +65,7 @@ The template-parser understands `if` and `foreach` controls and replaces certain
 ## <a name="templates-syntax">Syntax</a>
 
 Controls:
-- if-else (Else can be ommited):  
+- if-else (Else can be omitted):  
 `{if %placeholder == 'value'}Some Text{else}Other Text{/if}`
 - foreach-loop:  
 `{foreach %placeholder}Key: %key<br/>Value: %value{/foreach}`
@@ -122,7 +126,7 @@ This basis has to contain an array with URLs of each API to call.
 The URL can have the same placeholders as defined in the [Template-Syntax](#templates-syntax).  
 If the `METHOD` is `get`, all placeholders will be URL-Encoded.  
 The API transport uses cURL to call the APIs, therefore you might need to install `php5-curl` or similar in order to make it work.  
-__Note__: it is higly recommended to define own [Templates](#templates) when you want to use the API transport. The default template might exceed URL-length for GET requests and therefore cause all sorts of errors.  
+__Note__: it is highly recommended to define own [Templates](#templates) when you want to use the API transport. The default template might exceed URL-length for GET requests and therefore cause all sorts of errors.  
 
 Example:
 ```php
