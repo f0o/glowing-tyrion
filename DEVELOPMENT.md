@@ -5,6 +5,13 @@ Table of Content:
   - [`alert_schedule`](#db-alert_schedule)
   - [`alert_templates`](#db-alert_templates)
 - [Files](#files)
+  - [`alerts.php`](#files-alerts.php)
+    - [`DescribeAlert($alert)`](#files-alerts.php-1)
+    - [`ExtTransports($obj)`](#files-alerts.php-2)
+    - [`FormatAlertTpl($tpl,$obj)`](#files-alerts.php-3)
+    - [`RunAlerts()`](#files-alerts.php-4)
+    - [`TimeFormat($secs)`](#files-alerts.php-5)
+  - [`alerts.inc.php`](#files-alerts.inc.php)
 
 # <a name="db">Database</a>
 
@@ -80,3 +87,7 @@ Holds templates for single rules or a set of rules.
 ```
 
 # <a name="files">Files</a>
+
+## <a name="files-alerts.php">File: `/alerts.php`</a>
+
+## <a name="files-alerts.inc.php">File: `/includes/alerts.inc.php`</a>
