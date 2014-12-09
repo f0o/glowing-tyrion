@@ -37,7 +37,7 @@ RunAlerts();
 function RunAlerts() {
 	global $config;
 	$default_tpl = "%title\r\nSeverity: %severity\r\n{if %state == 0}Time elapsed: %elapsed\r\n{/if}Timestamp: %timestamp\r\nUnique-ID: %uid\r\nRule: %rule\r\n{if %faults}Faults:\r\n{foreach %faults}  #%key: %value\r\n{/foreach}{/if}Alert sent to: {foreach %contacts}%value <%key> {/foreach}"; //FIXME: Put somewhere else?
-	foreach( dbFetchRows("SELECT alerts.id,alerts.rule_id,alerts.device_id,alerts.state,alerts.details,alerts.time_logged,alert_rules.rule,alert_rules.severity FROM alerts,alert_rules WHERE alerts.rule_id = alert_rules.id && alerts.alerted = 0 ORDER BY alerts.id ASC") as $alert ) {
+	foreach( dbFetchRows("SELECT alert_log.id,alert_log.rule_id,alert_log.device_id,alert_log.state,alert_log.details,alert_log.time_logged,alert_rules.rule,alert_rules.severity FROM alert_log,alert_rules WHERE alert_log.rule_id = alert_rules.id && alert_log.alerted = 0 ORDER BY alert_log.id ASC") as $alert ) {
 		$obj = DescribeAlert($alert);
 		if( is_array($obj) ) {
 			$tpl = dbFetchRow('SELECT template FROM alert_templates WHERE rule_id LIKE "%,'.$alert['rule_id'].',%"');
@@ -54,7 +54,7 @@ function RunAlerts() {
 			}
 			echo "\r\n";
 		}
-		dbUpdate(array('alerted' => 1),'alerts','id = ?',array($alert['id']));
+		dbUpdate(array('alerted' => 1),'alert_log','id = ?',array($alert['id']));
 	}
 }
 
@@ -140,7 +140,7 @@ function DescribeAlert($alert) {
 			}
 		}
 	} elseif( $alert['state'] == 0 ) {
-		$id = dbFetchRow("SELECT alerts.id,alerts.time_logged,alerts.details FROM alerts WHERE alerts.state = 1 && alerts.rule_id = ? && alerts.device_id = ? && alerts.id < ? ORDER BY id DESC LIMIT 1", array($alert['rule_id'],$alert['device_id'],$alert['id']));
+		$id = dbFetchRow("SELECT alert_log.id,alert_log.time_logged,alert_log.details FROM alert_log WHERE alert_log.state = 1 && alert_log.rule_id = ? && alert_log.device_id = ? && alert_log.id < ? ORDER BY id DESC LIMIT 1", array($alert['rule_id'],$alert['device_id'],$alert['id']));
 		if( empty($id['id']) ) {
 			return false;
 		}
