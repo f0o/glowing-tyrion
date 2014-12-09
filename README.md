@@ -22,6 +22,8 @@ Table of Content:
 LibreNMS includes a highly customizable alerting system.  
 The system requires a set of user-defined rules to evaluate the situation of each device, port, service or any other entity.
 
+This document only covers the usage of it. See the [DEVELOPMENT.md](https://github.com/f0o/glowing-tyrion/blob/master/DEVELOPMENT.md) for code-documentation.
+
 # <a name="rules">Rules</a>
 
 Rules are defined using a logical language.  
