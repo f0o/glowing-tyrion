@@ -68,7 +68,7 @@ function ExtTransports($obj) {
 	foreach( $config['alert']['transports'] as $transport=>$opts ) {
 		if( file_exists($config['install_dir']."/includes/alerts/transport.".$transport.".php") ) {
 			echo $transport." => ";
-			eval('$tmp = function($obj,$opts) { '.file_get_contents($config['install_dir']."/includes/alerts/transport.".$transport.".php").' };');
+			eval('$tmp = function($obj,$opts) { global $config; '.file_get_contents($config['install_dir']."/includes/alerts/transport.".$transport.".php").' };');
 			$tmp = $tmp($obj,$opts);
 			echo ($tmp ? "OK" : "ERROR")."; ";
 		}
