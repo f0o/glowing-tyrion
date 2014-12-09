@@ -31,9 +31,11 @@ function GenSQL($rule) {
 	$tmp = explode(" ",$rule);
 	$tables = array();
 	foreach( $tmp as $opt ) {
-		if( strstr($opt,'%') ) {
+		if( strstr($opt,'%') && strstr($opt,'.') ) {
 			$tmpp = explode(".",$opt,2);
-			$tables[] = mres(str_replace("%","",$tmpp[0]));
+			$tmpp[0] = str_replace("%","",$tmpp[0]);
+			$tables[] = mres($tmpp[0]);
+			$rule = str_replace($opt,$tmpp[0].'.'.$tmpp[1],$rule);
 		}
 	}
 	$tables = array_unique($tables);
@@ -46,7 +48,7 @@ function GenSQL($rule) {
 		}
 		$i++;
 	}
-	$sql = "SELECT * FROM ".implode(",",$tables)." WHERE (".$join."".$tables[0].".device_id = ?) && (".str_replace("%","",$rule).")";
+	$sql = "SELECT * FROM ".implode(",",$tables)." WHERE (".$join."".$tables[0].".device_id = ?) && (".str_replace(array("!~","~"),array("NOT LIKE","LIKE"),$rule).")";
 	return $sql;
 }
 
@@ -61,13 +63,12 @@ function RunRules($device) {
 	foreach( dbFetchRows("SELECT * FROM alert_rules WHERE alert_rules.disabled = 0 && ( alert_rules.device_id = -1 || alert_rules.device_id = ? ) ORDER BY device_id,id",array($device)) as $rule ) {
 		echo " #".$rule['id'].":";
 		$chk = dbFetchRow("SELECT state FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'], $device));
-		if( $chk['state'] === "2" ) {
-			echo " SKIP  ";
-		}
 		$sql = GenSQL($rule['rule']);
 		$qry = dbFetchRows($sql,array($device));
 		if( sizeof($qry) > 0 ) {
-			if( $chk['state'] === "1" ) {
+			if( $chk['state'] === "2" ) {
+				echo " SKIP  ";
+			} elseif( $chk['state'] === "1" ) {
 				echo " NOCHG ";
 			} else {
 				$extra = gzcompress(json_encode(array('contacts' => GetContacts($qry), 'rule'=>$qry)),9);
