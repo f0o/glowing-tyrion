@@ -31,6 +31,8 @@ Holds an overview of all current states per rule per device.
 | device_id | int(11)   | NO   |     | NULL              |                             |
 | rule_id   | int(11)   | NO   |     | NULL              |                             |
 | state     | int(11)   | NO   |     | NULL              |                             |
+| alerted   | int(11)   | NO   |     | NULL              |                             |
+| open      | int(11)   | NO   |     | NULL              |                             |
 | timestamp | timestamp | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
 +-----------+-----------+------+-----+-------------------+-----------------------------+
 ```
@@ -46,17 +48,16 @@ Known values for field `state`:
 Field `details` only holds data when `state = 1`. The data is a gzip-compressed JSON object with informations about the entities that caused the alert.
 
 ```text
-+-------------+-------------+------+-----+-------------------+----------------+
-| Field       | Type        | Null | Key | Default           | Extra          |
-+-------------+-------------+------+-----+-------------------+----------------+
-| id          | int(11)     | NO   | PRI | NULL              | auto_increment |
-| rule_id     | int(11)     | NO   |     | NULL              |                |
-| device_id   | int(11)     | NO   |     | NULL              |                |
-| state       | int(11)     | NO   |     | NULL              |                |
-| details     | longblob    | NO   |     | NULL              |                |
-| time_logged | timestamp   | NO   |     | CURRENT_TIMESTAMP |                |
-| alerted     | smallint(6) | NO   |     | 0                 |                |
-+-------------+-------------+------+-----+-------------------+----------------+
++-------------+-----------+------+-----+-------------------+----------------+
+| Field       | Type      | Null | Key | Default           | Extra          |
++-------------+-----------+------+-----+-------------------+----------------+
+| id          | int(11)   | NO   | PRI | NULL              | auto_increment |
+| rule_id     | int(11)   | NO   |     | NULL              |                |
+| device_id   | int(11)   | NO   |     | NULL              |                |
+| state       | int(11)   | NO   |     | NULL              |                |
+| details     | longblob  | NO   |     | NULL              |                |
+| time_logged | timestamp | NO   |     | CURRENT_TIMESTAMP |                |
++-------------+-----------+------+-----+-------------------+----------------+
 ```
 
 ## <a name="db-alert_rules">Table: `alert_rules`</a>
