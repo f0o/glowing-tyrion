@@ -23,7 +23,6 @@ Table of Content:
 
 Holds an overview of all current states per rule per device.
 
-Holds all issued and not-yet issued alerts.  
 Known values for field `state`:
 - `0` OK
 - `1` Alert
