@@ -23,6 +23,12 @@ Table of Content:
 
 Holds an overview of all current states per rule per device.
 
+Holds all issued and not-yet issued alerts.  
+Known values for field `state`:
+- `0` OK
+- `1` Alert
+- `2` Acknowledged
+
 ```text
 +-----------+-----------+------+-----+-------------------+-----------------------------+
 | Field     | Type      | Null | Key | Default           | Extra                       |
@@ -38,12 +44,6 @@ Holds an overview of all current states per rule per device.
 ```
 
 ## <a name="db-alert_log">Table: `alert_log`</a>
-
-Holds all issued and not-yet issued alerts.  
-Known values for field `state`:
-- `0` OK
-- `1` Alert
-- `2` Acknowledged
 
 Field `details` only holds data when `state = 1`. The data is a gzip-compressed JSON object with informations about the entities that caused the alert.
 
