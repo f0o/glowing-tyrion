@@ -122,6 +122,22 @@ E-Mail transport is enabled with adding the following to your `config.php`:
 $config['alert']['transports']['mail'] = true;
 ```
 
+The E-Mail transports uses the same email-configuration like the rest of LibreNMS.  
+As a small reminder, here is it's configuration directives including defaults:
+```php
+$config['email_backend']              = 'mail';               // Mail backend. Allowed: "mail" (PHP's built-in), "sendmail", "smtp".
+$config['email_from']                 = NULL;                 // Mail from. Default: "ProjectName" <projectid@`hostname`>
+$config['email_user']                 = $config['project_id'];
+$config['email_sendmail_path']        = '/usr/sbin/sendmail'; // The location of the sendmail program.
+$config['email_smtp_host']            = 'localhost';          // Outgoing SMTP server name.
+$config['email_smtp_port']            = 25;                   // The port to connect.
+$config['email_smtp_timeout']         = 10;                   // SMTP connection timeout in seconds.
+$config['email_smtp_secure']          = NULL;                 // Enable encryption. Use 'tls' or 'ssl'
+$config['email_smtp_auth']            = FALSE;                // Whether or not to use SMTP authentication.
+$config['email_smtp_username']        = NULL;                 // SMTP username.
+$config['email_smtp_password']        = NULL;                 // Password for SMTP authentication.
+```
+
 ## <a name="transports-api">API</a>
 
 API transports definitions are a bit more complex than the E-Mail configuration.  
