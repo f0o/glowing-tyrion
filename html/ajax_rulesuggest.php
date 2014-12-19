@@ -55,6 +55,7 @@ function levsort($base, $obj) {
 }
 
 $obj = array(array('name'=>'Error: No suggestions found.'));
+$current = false;
 if( isset($_GET['term'],$_GET['device_id']) ) {
 	$chk = array();
 	$_GET['term'] = mres($_GET['term']);
@@ -78,13 +79,9 @@ if( isset($_GET['term'],$_GET['device_id']) ) {
 			$chk = $memcache->get('rule-suggest-toplvl');
 		}
 		if( !(sizeof($chk) > 0) || $chk === false ) {
-			$tmp = dbFetchRows('SHOW TABLES');
+			$tmp = dbFetchRows("SELECT TABLE_NAME FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'device_id'");
 			foreach( $tmp as $tst ) {
-				$tbl = array_shift($tst);
-				$chhk = dbFetchRows('SELECT device_id FROM '.$tbl.' LIMIT 1');
-				if( isset($chhk[0]['device_id']) ) {
-					$chk[] = $tbl.'.';
-				}
+				$chk[] = $tst['TABLE_NAME'].'.';
 			}
 		}
 	}
