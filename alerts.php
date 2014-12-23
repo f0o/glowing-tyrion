@@ -23,8 +23,8 @@
  * @subpackage Alerts
  */
 
-include("includes/defaults.inc.php");
-include("config.php");
+include_once("includes/defaults.inc.php");
+include_once("config.php");
 
 $lock = false;
 if( file_exists($config['install_dir']."/.alerts.lock") ) {
@@ -41,10 +41,10 @@ if( $lock === true ) {
 	file_put_contents($config['install_dir']."/.alerts.lock", getmypid());
 }
 
-include("includes/definitions.inc.php");
-include("includes/functions.php");
+include_once("includes/definitions.inc.php");
+include_once("includes/functions.php");
 
-RunAlerts();
+defined("TEST") || RunAlerts();
 
 unlink($config['install_dir']."/.alerts.lock");
 
@@ -54,9 +54,9 @@ unlink($config['install_dir']."/.alerts.lock");
  */
 function RunAlerts() {
 	global $config;
-	$default_tpl = "%title\r\nSeverity: %severity\r\n{if %state == 0}Time elapsed: %elapsed\r\n{/if}Timestamp: %timestamp\r\nUnique-ID: %uid\r\nRule: %rule\r\n{if %faults}Faults:\r\n{foreach %faults}  #%key: %value\r\n{/foreach}{/if}Alert sent to: {foreach %contacts}%value <%key> {/foreach}"; //FIXME: Put somewhere else?
+	$default_tpl = "%title\r\nSeverity: %severity\r\n{if %state == 0}Time elapsed: %elapsed\r\n{/if}Timestamp: %timestamp\r\nUnique-ID: %uid\r\nRule: {if %name}%name{else}%rule{/if}\r\n{if %faults}Faults:\r\n{foreach %faults}  #%key: %value\r\n{/foreach}{/if}Alert sent to: {foreach %contacts}%value <%key> {/foreach}"; //FIXME: Put somewhere else?
 	foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts WHERE alerts.state != 2 && alerts.open = 1") as $alert ) {
-		$alert = dbFetchRow("SELECT alert_log.id,alert_log.rule_id,alert_log.device_id,alert_log.state,alert_log.details,alert_log.time_logged,alert_rules.rule,alert_rules.severity,alert_rules.extra FROM alert_log,alert_rules WHERE alert_log.rule_id = alert_rules.id && alert_log.device_id = ? && alert_log.rule_id = ? ORDER BY alert_log.id DESC LIMIT 1",array($alert['device_id'],$alert['rule_id']));
+		$alert = dbFetchRow("SELECT alert_log.id,alert_log.rule_id,alert_log.device_id,alert_log.state,alert_log.details,alert_log.time_logged,alert_rules.rule,alert_rules.severity,alert_rules.extra,alert_rules.name FROM alert_log,alert_rules WHERE alert_log.rule_id = alert_rules.id && alert_log.device_id = ? && alert_log.rule_id = ? ORDER BY alert_log.id DESC LIMIT 1",array($alert['device_id'],$alert['rule_id']));
 		$alert['details'] = json_decode(gzuncompress($alert['details']),true);
 		$noiss = false;
 		$noacc = false;
@@ -210,6 +210,7 @@ function DescribeAlert($alert) {
 	$obj['uid'] = $alert['id'];
 	$obj['severity'] = $alert['severity'];
 	$obj['rule'] = $alert['rule'];
+	$obj['name'] = $alert['name'];
 	$obj['timestamp'] = $alert['time_logged'];
 	$obj['contacts'] = $extra['contacts'];
 	$obj['state'] = $alert['state'];
