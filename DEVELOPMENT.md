@@ -72,7 +72,9 @@ When `device_id = -1` the rule is considered to be global and thus applied to al
 | device_id | int(11)                         | NO   |     | NULL    |                |
 | rule      | text                            | NO   |     | NULL    |                |
 | severity  | enum('ok','warning','critical') | NO   |     | NULL    |                |
+| extra     | varchar(255)                    | NO   |     | NULL    |                |
 | disabled  | tinyint(1)                      | NO   |     | NULL    |                |
+| name      | varchar(255)                    | NO   |     | NULL    |                |
 +-----------+---------------------------------+------+-----+---------+----------------+
 ```
 
@@ -102,6 +104,7 @@ Holds templates for single rules or a set of rules.
 +----------+--------------+------+-----+---------+----------------+
 | id       | int(11)      | NO   | PRI | NULL    | auto_increment |
 | rule_id  | varchar(255) | NO   |     | ,       |                |
+| name     | varchar(255) | NO   |     | NULL    |                |
 | template | longtext     | NO   |     | NULL    |                |
 +----------+--------------+------+-----+---------+----------------+
 ```
