@@ -34,7 +34,7 @@ function GenSQL($rule) {
 		if( strstr($opt,'%') && strstr($opt,'.') ) {
 			$tmpp = explode(".",$opt,2);
 			$tmpp[0] = str_replace("%","",$tmpp[0]);
-			$tables[] = mres($tmpp[0]);
+			$tables[] = mres(str_replace("(","",$tmpp[0]));
 			$rule = str_replace($opt,$tmpp[0].'.'.$tmpp[1],$rule);
 		}
 	}
@@ -48,7 +48,7 @@ function GenSQL($rule) {
 		}
 		$i++;
 	}
-	$sql = "SELECT * FROM ".implode(",",$tables)." WHERE (".$join."".$tables[0].".device_id = ?) && (".str_replace(array("*","!~","~"),array("%","NOT LIKE","LIKE"),$rule).")";
+	$sql = "SELECT * FROM ".implode(",",$tables)." WHERE (".$join."".str_replace("(","",$tables[0]).".device_id = ?) && (".str_replace(array("%","@","!~","~"),array("","%","NOT LIKE","LIKE"),$rule).")";
 	return $sql;
 }
 
@@ -108,10 +108,12 @@ function GetContacts($results) {
 	if( sizeof($results) == 0 ) {
 		return array();
 	}
+	if( $config['alerts']['email']['default_only'] ) {
+		return array($config['alerts']['email']['default'] => 'NOC');
+	}
 	$contacts = array();
 	$uids = array();
 	foreach( $results as $result ) {
-		$tmpa = array();
 		$tmp  = NULL;
 		if( is_numeric($result["port_id"]) ) {
 			$tmpa = dbFetchRows("SELECT user_id FROM ports_perms WHERE access_level >= 0 AND port_id = ?",array($result["port_id"]));
