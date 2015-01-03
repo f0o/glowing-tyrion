@@ -23,16 +23,8 @@
  * @subpackage Alerts
  */
 
-include_once("includes/defaults.inc.php");
-include_once("config.php");
-include_once("includes/definitions.inc.php");
-include_once("includes/functions.php");
-include_once("includes/alerts.inc.php");
-
-
 define("TEST",true);
 include("alerts.php");
-
 
 /////////////////////////////////////////////////////
 echo "SQL Generation Test:\r\n";/////////////////////

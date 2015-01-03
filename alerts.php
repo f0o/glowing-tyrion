@@ -36,17 +36,56 @@ if( file_exists($config['install_dir']."/.alerts.lock") ) {
 }
 
 if( $lock === true ) {
-	exit('Alreading running with PID '.$lpid."\r\n");
+	exit(1);
 } else {
 	file_put_contents($config['install_dir']."/.alerts.lock", getmypid());
 }
 
-include_once("includes/definitions.inc.php");
-include_once("includes/functions.php");
+include_once($config['install_dir']."/includes/definitions.inc.php");
+include_once($config['install_dir']."/includes/functions.php");
+include_once($config['install_dir']."/includes/alerts.inc.php");
 
-defined("TEST") || RunAlerts();
+if( !defined("TEST") ) {
+	echo "Start: ".date('r')."\r\n";
+	echo "RunFollowUp():\r\n";
+	RunFollowUp();
+	echo "RunAlerts():\r\n";
+	RunAlerts();
+	echo "End  : ".date('r')."\r\n";
+}
 
 unlink($config['install_dir']."/.alerts.lock");
+
+/**
+ * Run Follow-Up alerts
+ * @return void
+ */
+function RunFollowUp() {
+	global $config;
+	foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts WHERE alerts.state = 1 && alerts.open = 0") as $alert ) {
+		$alert = dbFetchRow("SELECT alert_log.id,alert_log.rule_id,alert_log.device_id,alert_log.state,alert_log.details,alert_log.time_logged,alert_rules.rule,alert_rules.severity,alert_rules.extra,alert_rules.name FROM alert_log,alert_rules WHERE alert_log.rule_id = alert_rules.id && alert_log.device_id = ? && alert_log.rule_id = ? ORDER BY alert_log.id DESC LIMIT 1",array($alert['device_id'],$alert['rule_id']));
+		$alert['details'] = json_decode(gzuncompress($alert['details']),true);
+		$chk = dbFetchRows(GenSQL($alert['rule']),array($alert['device_id']));
+		$o = sizeof($alert['details']['rule']);
+		$n = sizeof($chk);
+		$ret = "Alert #".$alert['id'];
+		$state = 0;
+		if( $n > $o ) {
+			$ret .= " Worsens";
+			$state = 3;
+		} elseif( $n < $o ) {
+			$ret .= " Betters";
+			$state = 4;
+		}
+		if( $state > 0 ) {
+			$alert['details']['rule'] = $chk;
+			if( dbInsert(array('state' => $state, 'device_id' => $alert['device_id'], 'rule_id' => $alert['rule_id'], 'details' => $alert['details']),'alert_log') ) {
+				dbUpdate(array('state' => $state, 'open' => 0),'alerts','rule_id = ? && device_id = ?', array($alert['rule_id'], $alert['device_id']));
+			}
+			echo $ret." (".$o."/".$n.")\r\n";
+		}
+	}
+}
 
 /**
  * Run all alerts
@@ -184,8 +223,13 @@ function DescribeAlert($alert) {
 	$device = dbFetchRow("SELECT hostname FROM devices WHERE device_id = ?",array($alert['device_id']));
 	$obj['hostname'] = $device['hostname'];
 	$extra = $alert['details'];
-	if( $alert['state'] == 1 ) {
+	if( $alert['state'] >= 1 ) {
 		$obj['title'] = 'Alert for device '.$device['hostname'].' Alert-ID #'.$alert['id'];
+		if( $alert['state'] == 3 ) {
+			$obj['title'] .= " got worse";
+		} elseif( $alert['state'] == 4 ) {
+			$obj['title'] .= " got better";
+		}
 		foreach( $extra['rule'] as $incident ) {
 			$i++;
 			foreach( $incident as $k=>$v ) {
