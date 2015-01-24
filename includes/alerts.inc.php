@@ -66,10 +66,16 @@ function RunRules($device) {
 	}
 	foreach( dbFetchRows("SELECT * FROM alert_rules WHERE alert_rules.disabled = 0 && ( alert_rules.device_id = -1 || alert_rules.device_id = ? ) ORDER BY device_id,id",array($device)) as $rule ) {
 		echo " #".$rule['id'].":";
+		$inv = json_decode($rule['extra'],true);
+		if( isset($inv['invert']) ) {
+			$inv = (bool) $inv['invert'];
+		} else {
+			$inv = false;
+		}
 		$chk = dbFetchRow("SELECT state FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'], $device));
 		$sql = GenSQL($rule['rule']);
 		$qry = dbFetchRows($sql,array($device));
-		if( sizeof($qry) > 0 ) {
+		if( sizeof($qry) > 0 || $inv === true ) {
 			if( $chk['state'] === "2" ) {
 				echo " SKIP  ";
 			} elseif( $chk['state'] === "1" ) {
