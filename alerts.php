@@ -181,8 +181,6 @@ function ExtTransports($obj) {
  * @return string
  */
 function FormatAlertTpl($tpl,$obj) {
-	$ret = "";
-	$tmp = array("","");
 	$msg = '$ret .= "'.str_replace(array("{else}","{/if}","{/foreach}"),array('"; } else { $ret .= "','"; } $ret .= "','"; } $ret .= "'),addslashes($tpl)).'";';
 	$parsed = $msg;
 	$s = strlen($msg);
@@ -216,6 +214,8 @@ function FormatAlertTpl($tpl,$obj) {
 				$for    = false;
 				$o      = 8;
 				$native = array('"; foreach( ',' as $key=>$value) { $ret .= "');
+			} else {
+				continue;
 			}
 			$cond   = preg_replace('/%(\w+)/i','\$obj["$1"]', substr($orig,$o,-1));
 			$native = $native[0].$cond.$native[1];
