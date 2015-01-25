@@ -75,7 +75,17 @@ function RunRules($device) {
 		$chk = dbFetchRow("SELECT state FROM alerts WHERE rule_id = ? && device_id = ? ORDER BY id DESC LIMIT 1", array($rule['id'], $device));
 		$sql = GenSQL($rule['rule']);
 		$qry = dbFetchRows($sql,array($device));
-		if( sizeof($qry) > 0 || $inv === true ) {
+		$s = sizeof($qry);
+		if( $s == 0 && $inv === false ) {
+			$doalert = false;
+		} elseif( $s > 0 && $inv === false ) {
+			$doalert = true;
+		} elseif( $s == 0 && $inv === true ) {
+			$doalert = true;
+		} else { //( $s > 0 && $inv == false ) {
+			$doalert = false;
+		}
+		if( $doalert ) {
 			if( $chk['state'] === "2" ) {
 				echo " SKIP  ";
 			} elseif( $chk['state'] === "1" ) {
