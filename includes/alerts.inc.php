@@ -88,7 +88,7 @@ function RunRules($device) {
 		if( $doalert ) {
 			if( $chk['state'] === "2" ) {
 				echo " SKIP  ";
-			} elseif( $chk['state'] === "1" ) {
+			} elseif( $chk['state'] >= "1" ) {
 				echo " NOCHG ";
 			} else {
 				$extra = gzcompress(json_encode(array('contacts' => GetContacts($qry), 'rule'=>$qry)),9);

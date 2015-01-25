@@ -62,9 +62,13 @@ unlink($config['install_dir']."/.alerts.lock");
  */
 function RunFollowUp() {
 	global $config;
-	foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts WHERE alerts.state = 1 && alerts.open = 0") as $alert ) {
+	foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts WHERE alerts.state != 2 && alerts.open = 0") as $alert ) {
 		$alert = dbFetchRow("SELECT alert_log.id,alert_log.rule_id,alert_log.device_id,alert_log.state,alert_log.details,alert_log.time_logged,alert_rules.rule,alert_rules.severity,alert_rules.extra,alert_rules.name FROM alert_log,alert_rules WHERE alert_log.rule_id = alert_rules.id && alert_log.device_id = ? && alert_log.rule_id = ? ORDER BY alert_log.id DESC LIMIT 1",array($alert['device_id'],$alert['rule_id']));
 		$alert['details'] = json_decode(gzuncompress($alert['details']),true);
+		$rextra = json_decode($alert['extra'],true);
+		if( $rextra['invert'] ) {
+			continue;
+		}
 		$chk = dbFetchRows(GenSQL($alert['rule']),array($alert['device_id']));
 		$o = sizeof($alert['details']['rule']);
 		$n = sizeof($chk);
@@ -79,8 +83,8 @@ function RunFollowUp() {
 		}
 		if( $state > 0 ) {
 			$alert['details']['rule'] = $chk;
-			if( dbInsert(array('state' => $state, 'device_id' => $alert['device_id'], 'rule_id' => $alert['rule_id'], 'details' => $alert['details']),'alert_log') ) {
-				dbUpdate(array('state' => $state, 'open' => 0),'alerts','rule_id = ? && device_id = ?', array($alert['rule_id'], $alert['device_id']));
+			if( dbInsert(array('state' => $state, 'device_id' => $alert['device_id'], 'rule_id' => $alert['rule_id'], 'details' => gzcompress(json_encode($alert['details']),9)), 'alert_log') ) {
+				dbUpdate(array('state' => $state, 'open' => 1, 'alerted' => 1),'alerts','rule_id = ? && device_id = ?', array($alert['rule_id'], $alert['device_id']));
 			}
 			echo $ret." (".$o."/".$n.")\r\n";
 		}
@@ -239,7 +243,7 @@ function DescribeAlert($alert) {
 			}
 		}
 	} elseif( $alert['state'] == 0 ) {
-		$id = dbFetchRow("SELECT alert_log.id,alert_log.time_logged,alert_log.details FROM alert_log WHERE alert_log.state = 1 && alert_log.rule_id = ? && alert_log.device_id = ? && alert_log.id < ? ORDER BY id DESC LIMIT 1", array($alert['rule_id'],$alert['device_id'],$alert['id']));
+		$id = dbFetchRow("SELECT alert_log.id,alert_log.time_logged,alert_log.details FROM alert_log WHERE alert_log.state != 2 && alert_log.state != 0 && alert_log.rule_id = ? && alert_log.device_id = ? && alert_log.id < ? ORDER BY id DESC LIMIT 1", array($alert['rule_id'],$alert['device_id'],$alert['id']));
 		if( empty($id['id']) ) {
 			return false;
 		}
