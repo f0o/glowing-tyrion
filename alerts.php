@@ -181,39 +181,50 @@ function ExtTransports($obj) {
  * @return string
  */
 function FormatAlertTpl($tpl,$obj) {
-	$tpl = addslashes($tpl);
-
-	/**
-	 * {if ..}..{else}..{/if}
-	 */
-	preg_match_all('/\\{if (.+)\\}(.+)\\{\\/if\\}/Uims',$tpl,$m);
-	foreach( $m[1] as $k=>$if ) {
-		$if = preg_replace('/%(\w+)/i','\$obj["$1"]', $if);
-		$ret = "";
-		$cond = "if( $if ) {\r\n".'$ret = "'.str_replace("{else}",'";'."\r\n} else {\r\n".'$ret = "',$m[2][$k]).'";'."\r\n}\r\n";
-		eval($cond); //FIXME: Eval is Evil
-		$tpl = str_replace($m[0][$k],$ret,$tpl);
+	$ret = "";
+	$tmp = array("","");
+	$msg = '$ret .= "'.str_replace(array("{else}","{/if}","{/foreach}"),array('"; } else { $ret .= "','"; } $ret .= "','"; } $ret .= "'),addslashes($msg)).'";';
+	$parsed = $msg;
+	$s = strlen($msg);
+	$x = $pos = -1;
+	$buff = "";
+	$if = $for = false;
+	while( ++$x < $s ) {
+		if( $msg[$x] == "{" && $buff == "" ) {
+			$buff .= $msg[$x];
+		} elseif( $buff == "{ " ) {
+			$buff = "";
+		} elseif( $buff != "" ) {
+			$buff .= $msg[$x];
+		}
+		if( $buff == "{if" ) {
+			$pos = $x;
+			$if  = true;
+		} elseif( $buff == "{foreach" ) {
+			$pos = $x;
+			$for = true;
+		}
+		if( $pos != -1 && $msg[$x] == "}" ) {
+			$orig   = $buff;
+			$buff   = "";
+			$pos    = -1;
+			if( $if ) {
+				$if     = false;
+				$o      = 3;
+				$native = array('"; if( ',' ) { $ret .= "');
+			} elseif( $for ) {
+				$for    = false;
+				$o      = 8;
+				$native = array('"; foreach( ',' as $key=>$value) { $ret .= "');
+			}
+			$cond   = preg_replace('/%(\w+)/i','\$obj["$1"]', substr($orig,$o,-1));
+			$native = $native[0].$cond.$native[1];
+			$parsed = str_replace($orig,$native,$parsed);
+			unset($cond, $o, $orig, $native);
+		}
 	}
-
-	/**
-	 * {foreach %var}..{/foreach}
-	 */
-	preg_match_all('/\\{foreach (.+)\\}(.+)\\{\\/foreach\\}/Uims',$tpl,$m);
-	foreach( $m[1] as $k=>$for ) {
-		$for = preg_replace('/%(\w+)/i','\$obj["$1"]', $for);
-		$ret = "";
-		$loop = 'foreach( '.$for.' as $key=>$value ) { $ret .= "'.str_replace(array("%key","%value"),array('$key','$value'),$m[2][$k]).'"; }';
-		eval($loop); //FIXME: Eval is Evil
-		$tpl = str_replace($m[0][$k],$ret,$tpl);
-	}
-
-	/**
-	 * Populate variables with data
-	 */
-	foreach( $obj as $k=>$v ) {
-		$tpl = str_replace("%".$k, $v, $tpl);
-	}
-	return $tpl;
+	$parsed = populate($parsed);
+	return RunJail($parsed,$obj);
 }
 
 /**
@@ -289,5 +300,44 @@ function TimeFormat($secs){
 		return "none";
 	}
 	return join(' ', $ret);
+}
+
+/**
+ * "Safely" run eval
+ * @param string $code Code to run
+ * @param array $obj Object with variables
+ * @return string|mixed
+ */
+function RunJail($code,$obj) {
+	$ret = "";
+	eval($code);
+	return $ret;
+}
+
+/**
+ * Populate variables
+ * @param string Text with variables
+ * @return string
+ */
+function populate($txt) {
+	preg_match_all('/%([\w\.]+)/', $txt, $m);
+	foreach( $m[1] as $tmp ) {
+		$orig = $tmp;
+		$rep = false;
+		if( $tmp == "key" || $tmp == "value" ) {
+			$rep = '$'.$tmp;
+		} else {
+			if( strstr($tmp,'.') ) {
+				$tmp = explode('.',$tmp,2);
+				$pre = '$'.$tmp[0];
+				$tmp = $tmp[1];
+			} else {
+				$pre = '$obj';
+			}
+			$rep = "{".$pre."['".str_replace('.',"']['",$tmp)."']}";
+		}
+		$txt = str_replace("%".$orig,$rep,$txt);
+	}
+	return $txt;
 }
 ?>
