@@ -183,7 +183,7 @@ function ExtTransports($obj) {
 function FormatAlertTpl($tpl,$obj) {
 	$ret = "";
 	$tmp = array("","");
-	$msg = '$ret .= "'.str_replace(array("{else}","{/if}","{/foreach}"),array('"; } else { $ret .= "','"; } $ret .= "','"; } $ret .= "'),addslashes($msg)).'";';
+	$msg = '$ret .= "'.str_replace(array("{else}","{/if}","{/foreach}"),array('"; } else { $ret .= "','"; } $ret .= "','"; } $ret .= "'),addslashes($tpl)).'";';
 	$parsed = $msg;
 	$s = strlen($msg);
 	$x = $pos = -1;
