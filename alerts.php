@@ -97,7 +97,7 @@ function RunFollowUp() {
  */
 function RunAlerts() {
 	global $config;
-	$default_tpl = "%title\r\nSeverity: %severity\r\n{if %state == 0}Time elapsed: %elapsed\r\n{/if}Timestamp: %timestamp\r\nUnique-ID: %uid\r\nRule: {if %name}%name{else}%rule{/if}\r\n{if %faults}Faults:\r\n{foreach %faults}  #%key: %value\r\n{/foreach}{/if}Alert sent to: {foreach %contacts}%value <%key> {/foreach}"; //FIXME: Put somewhere else?
+	$default_tpl = "%title\r\nSeverity: %severity\r\n{if %state == 0}Time elapsed: %elapsed\r\n{/if}Timestamp: %timestamp\r\nUnique-ID: %uid\r\nRule: {if %name}%name{else}%rule{/if}\r\n{if %faults}Faults:\r\n{foreach %faults}  #%key: %value.string\r\n{/foreach}{/if}Alert sent to: {foreach %contacts}%value <%key> {/foreach}"; //FIXME: Put somewhere else?
 	foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts WHERE alerts.state != 2 && alerts.open = 1") as $alert ) {
 		$alert = dbFetchRow("SELECT alert_log.id,alert_log.rule_id,alert_log.device_id,alert_log.state,alert_log.details,alert_log.time_logged,alert_rules.rule,alert_rules.severity,alert_rules.extra,alert_rules.name FROM alert_log,alert_rules WHERE alert_log.rule_id = alert_rules.id && alert_log.device_id = ? && alert_log.rule_id = ? ORDER BY alert_log.id DESC LIMIT 1",array($alert['device_id'],$alert['rule_id']));
 		$alert['details'] = json_decode(gzuncompress($alert['details']),true);
@@ -247,9 +247,10 @@ function DescribeAlert($alert) {
 		}
 		foreach( $extra['rule'] as $incident ) {
 			$i++;
+			$obj['faults'][$i] = $incident;
 			foreach( $incident as $k=>$v ) {
 				if( !empty($v) && $k != 'device_id' && (stristr($k,'id') || stristr($k,'desc')) && substr_count($k,'_') <= 1 ) {
-					$obj['faults'][$i] .= $k.' => '.$v."; ";
+					$obj['faults'][$i]['string'] .= $k.' => '.$v."; ";
 				}
 			}
 		}
