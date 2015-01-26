@@ -317,8 +317,8 @@ function RunJail($code,$obj) {
 
 /**
  * Populate variables
- * @param string Text with variables
- * @param bool Wrap variable for text-usage (default: true)
+ * @param string $txt Text with variables
+ * @param bool $wrap Wrap variable for text-usage (default: true)
  * @return string
  */
 function populate($txt,$wrap=true) {
