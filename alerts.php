@@ -63,7 +63,7 @@ class Dispatcher extends Alert {
 	 * Run Follow-Up alerts
 	 * @return void
 	 */
-	function RunFollowUp() {
+	final private function RunFollowUp() {
 		global $config;
 		foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts,alert_rules WHERE alerts.rule_id = alert_rules.id && alert_rules.disabled = 0 && alerts.state != 2 && alerts.open = 0") as $alert ) {
 			$tmp = array($alert['rule_id'],$alert['device_id']);
@@ -104,7 +104,7 @@ class Dispatcher extends Alert {
 	 * Run all alerts
 	 * @return void
 	 */
-	function RunAlerts() {
+	final private function RunAlerts() {
 		global $config;
 		$default_tpl = "%title\r\nSeverity: %severity\r\n{if %state == 0}Time elapsed: %elapsed\r\n{/if}Timestamp: %timestamp\r\nUnique-ID: %uid\r\nRule: {if %name}%name{else}%rule{/if}\r\n{if %faults}Faults:\r\n{foreach %faults}  #%key: %value.string\r\n{/foreach}{/if}Alert sent to: {foreach %contacts}%value <%key> {/foreach}"; //FIXME: Put somewhere else?
 		foreach( dbFetchRows("SELECT alerts.device_id, alerts.rule_id, alerts.state FROM alerts,alert_rules WHERE alerts.rule_id = alert_rules.id && alert_rules.disabled = 0 && alerts.state != 2 && alerts.open = 1") as $alert ) {
@@ -327,7 +327,7 @@ class Dispatcher extends Alert {
 	 * "Safely" run eval
 	 * @param string $code Code to run
 	 * @param array $obj Object with variables
-	 * @return string|mixed
+	 * @return string
 	 */
 	final private function RunJail($code,$obj) {
 		$ret = "";
@@ -368,4 +368,3 @@ class Dispatcher extends Alert {
 }
 
 $dispatcher = new Dispatcher();
-?>

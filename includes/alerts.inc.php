@@ -57,7 +57,7 @@ class Alert {
 	/**
 	 * Run all rules for a device
 	 * @param int $device Device-ID
-	 * @return void
+	 * @return false|null
 	 */
 	final public function RunRules($device) {
 		global $debug;
@@ -168,4 +168,3 @@ class Alert {
 		return $contacts;
 	}
 }
-?>
