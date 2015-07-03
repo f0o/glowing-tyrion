@@ -1,0 +1,4 @@
+CREATE TABLE `alert_route_links` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `name` VARCHAR(255) NOT NULL UNIQUE KEY, `condition` TEXT NOT NULL, `action` TEXT NOT NULL, INDEX ( `id` ))  ENGINE = INNODB;
+CREATE TABLE `alert_route_chains` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,`name` VARCHAR(255) NOT NULL ,`action` INT NOT NULL , INDEX (  `id`, `name` ,  `action` )) ENGINE = INNODB;
+CREATE TABLE `alert_route_maps` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,`chain_id` INT NOT NULL ,`link_id` VARCHAR(255) NOT NULL , `position` INT NOT NULL, INDEX (  `id`, `chain_id` ,  `link_id` )) ENGINE = INNODB;
+CREATE TABLE `alert_route` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,`chain_id` INT NOT NULL ,`target` VARCHAR(255) NOT NULL , `position` INT NOT NULL, INDEX (  `id`, `chain_id` ,  `target` )) ENGINE = INNODB;
